@@ -27,6 +27,22 @@ app.get('/api/filmes', (req, res) => {
   });
 });
 
+app.post('/api/filmes', (req, res) => {
+  const { titulo, genero } = req.body;
+  if (!titulo || !genero) {
+    return res.status(400).json({ error: 'Título e gênero do filme são obrigatórios.' });
+  }
+
+  const sql = `INSERT INTO filmes (titulo, genero) VALUES (?, ?)`;
+  db.run(sql, [titulo, genero], function(err) {
+    if (err) {
+      res.status(500).json({ error: err.message });
+      return;
+    }
+    res.status(201).json({ id: this.lastID, titulo, genero });
+  });
+});
+
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
   console.log(`API: http://localhost:${port}/api/filmes`);
