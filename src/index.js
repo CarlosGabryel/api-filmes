@@ -9,13 +9,29 @@ const db = new sqlite3.Database('./db/database.db', (err) => {
     console.error('Erro ao conectar ao banco de dados:', err.message);
   } else {
     console.log('Conectado ao banco de dados SQLite.');
+    // Cria a tabela 'filmes' se ela não existir
     db.run(`CREATE TABLE IF NOT EXISTS filmes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       titulo TEXT NOT NULL,
       genero TEXT NOT NULL
     )`);
+
+    // Insere alguns filmes de exemplo
+    const filmesDeExemplo = [
+      ['A Origem', 'Ficção Científica'],
+      ['Interestelar', 'Ficção Científica'],
+      ['Pulp Fiction', 'Crime'],
+      ['O Poderoso Chefão', 'Drama']
+    ];
+
+    const stmt = db.prepare(`INSERT OR IGNORE INTO filmes (titulo, genero) VALUES (?, ?)`);
+    filmesDeExemplo.forEach(filme => {
+      stmt.run(filme);
+    });
+    stmt.finalize();
   }
 });
+
 
 app.get('/api/filmes', (req, res) => {
   db.all('SELECT * FROM filmes', [], (err, rows) => {
